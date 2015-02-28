@@ -19,12 +19,17 @@ bContinue = True
 
 # Capture d'une photo avec la caméra
 def CapturePhoto(aPhoto):
-        with picamera.PiCamera() as camera:
-                camera.resolution = (Config.PhotoWidth, Config.PhotoHeight)
-                camera.start_preview()
-                # Camera warm-up time
-                time.sleep(0.3)
-                camera.capture(aPhoto, resize=(Config.PhotoWidth, Config.PhotoHeight))
+        try:
+                with picamera.PiCamera() as camera:
+                        camera.resolution = (Config.PhotoWidth, Config.PhotoHeight)
+                        camera.start_preview()
+                        # Camera warm-up time
+                        time.sleep(0.3)
+                        camera.capture(aPhoto, resize=(Config.PhotoWidth, Config.PhotoHeight))
+        except picamera.PiCameraRuntimeError:
+                return true
+        except:
+                return false
 
 # Détection d'un mouvement entre 2 images
 def DetectionMouvement():
