@@ -20,11 +20,13 @@ bContinue = True
 # Capture d'une photo avec la caméra
 def CapturePhoto(aPhoto):
    try:
+      if os.path.isfile(aPhoto):
+         os.remove(aPhoto)
       with picamera.PiCamera() as camera:
          camera.resolution = (Config.PhotoWidth, Config.PhotoHeight)
          camera.start_preview()
          # Camera warm-up time
-         time.sleep(0.3)
+         time.sleep(1)
          camera.capture(aPhoto, resize=(Config.PhotoWidth, Config.PhotoHeight))
    except picamera.PiCameraRuntimeError:
       return True
@@ -105,17 +107,24 @@ def EnvoiMail(aDate, aHeureMinuteSeconde):
    server.quit()
 
 while bContinue:
+   bMouvementDetecte = False
+   OldPhoto = Config.RepertoirePhotosTmp + Config.PhotoT1
+   NewPhoto = Config.RepertoirePhotosTmp + Config.PhotoT2
+
    # Mise à jour des photos à traiter
-   shutil.copy(Config.RepertoirePhotosTmp + Config.PhotoT2, Config.RepertoirePhotosTmp + Config.PhotoT1)
+   if os.path.isfile(OldPhoto): 
+      os.remove(OldPhoto)
+   if os.path.isfile(NewPhoto): 
+      shutil.copy(NewPhoto, OldPhoto)
    
    # Prise de la nouvelle photo
-   Photo = Config.RepertoirePhotosTmp + Config.PhotoT2
-   CapturePhoto(Photo)
-   shutil.copy(Photo, Config.RepertoireServer + Config.LastPhoto)
+   CapturePhoto(NewPhoto)
+   shutil.copy(NewPhoto, Config.RepertoireServer + Config.LastPhoto)
    
    # Detection du mouvement
-   bMouvementDetecte = DetectionMouvement()
-   
+   if os.path.isfile(OldPhoto) and os.path.isfile(NewPhoto):
+     bMouvementDetecte = DetectionMouvement()
+      
    # Enregistrement en cours et mouvement détecté
    if os.path.isfile(Config.FichierEnregistrementOn) and bMouvementDetecte:
       Date = time.strftime("%Y%m%d", time.localtime())
