@@ -106,32 +106,37 @@ def EnvoiMail(aDate, aHeureMinuteSeconde):
    server.sendmail(Config.MailOrig, Config.MailDest, msg.as_string())
    server.quit()
 
-while bContinue:
-   bMouvementDetecte = False
-   OldPhoto = Config.RepertoirePhotosTmp + Config.PhotoT1
-   NewPhoto = Config.RepertoirePhotosTmp + Config.PhotoT2
+# Main
+def main ():
+   while bContinue:
+      bMouvementDetecte = False
+      OldPhoto = Config.RepertoirePhotosTmp + Config.PhotoT1
+      NewPhoto = Config.RepertoirePhotosTmp + Config.PhotoT2
 
-   # Mise à jour des photos à traiter
-   if os.path.isfile(OldPhoto): 
-      os.remove(OldPhoto)
-   if os.path.isfile(NewPhoto): 
-      shutil.copy(NewPhoto, OldPhoto)
+      # Mise à jour des photos à traiter
+      if os.path.isfile(OldPhoto): 
+         os.remove(OldPhoto)
+      if os.path.isfile(NewPhoto): 
+         shutil.copy(NewPhoto, OldPhoto)
    
-   # Prise de la nouvelle photo
-   CapturePhoto(NewPhoto)
-   shutil.copy(NewPhoto, Config.RepertoireServer + Config.LastPhoto)
+      # Prise de la nouvelle photo
+      CapturePhoto(NewPhoto)
+      shutil.copy(NewPhoto, Config.RepertoireServer + Config.LastPhoto)
    
-   # Detection du mouvement
-   if os.path.isfile(OldPhoto) and os.path.isfile(NewPhoto):
-     bMouvementDetecte = DetectionMouvement()
+      # Detection du mouvement
+      if os.path.isfile(OldPhoto) and os.path.isfile(NewPhoto):
+         bMouvementDetecte = DetectionMouvement()
       
-   # Enregistrement en cours et mouvement détecté
-   if os.path.isfile(Config.FichierEnregistrementOn) and bMouvementDetecte:
-      Date = time.strftime("%Y%m%d", time.localtime())
-      HeureMinuteSeconde = time.strftime("%H:%M:%S", time.localtime())
+      # Enregistrement en cours et mouvement détecté
+      if os.path.isfile(Config.FichierEnregistrementOn) and bMouvementDetecte:
+         Date = time.strftime("%Y%m%d", time.localtime())
+         HeureMinuteSeconde = time.strftime("%H:%M:%S", time.localtime())
       
-      # Sauvegarde des images
-      EnregistrementImages (Date, HeureMinuteSeconde)
+         # Sauvegarde des images
+         EnregistrementImages (Date, HeureMinuteSeconde)
       
-      # Envoi d'un mail
-      EnvoiMail(Date, HeureMinuteSeconde)
+         # Envoi d'un mail
+         EnvoiMail(Date, HeureMinuteSeconde)
+
+if __name__ == "__main__":
+   main()
